@@ -3,696 +3,883 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMG Research Certificate Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Complete Research Guide for IMGs</title>
     <style>
+        :root {
+            --primary-blue: #2E86AB;
+            --secondary-purple: #6A4C93;
+            --accent-orange: #FF6B35;
+            --success-green: #4CAF50;
+            --warning-yellow: #FFC107;
+            --light-gray: #f5f7fa;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
-            min-height: 100vh;
-            padding: 30px;
-            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark-gray);
+            line-height: 1.6;
         }
-
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: start;
+            padding: 20px;
         }
-
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Form Styling */
-        .form-panel {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(46, 134, 171, 0.1);
-            position: sticky;
-            top: 30px;
-        }
-
-        .form-panel h1 {
-            font-family: 'Playfair Display', serif;
-            color: #2E86AB;
-            margin-bottom: 10px;
-            font-size: 2.2rem;
+        
+        header {
+            background: linear-gradient(to right, var(--primary-blue), var(--secondary-purple));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
-        .form-panel p {
-            color: #666;
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
+        
+        h1 {
+            font-size: 2.5rem;
             margin-bottom: 10px;
-            color: #2E86AB;
-            font-weight: 600;
-            font-size: 1.1rem;
         }
-
-        input[type="text"], input[type="date"] {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            background: #f9f9f9;
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
         }
-
-        input[type="text"]:focus, input[type="date"]:focus {
-            border-color: #2E86AB;
-            background: white;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
-        }
-
-        .preview-text {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        .btn-group {
+        
+        .progress-tracker {
             display: flex;
-            gap: 15px;
-            margin-top: 40px;
+            justify-content: space-between;
+            margin: 40px 0;
+            position: relative;
         }
-
-        button {
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background: var(--medium-gray);
+            z-index: 1;
+        }
+        
+        .step {
+            text-align: center;
+            z-index: 2;
+            position: relative;
             flex: 1;
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        }
+        
+        .step-circle {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: 4px solid var(--medium-gray);
+            border-radius: 50%;
+            margin: 0 auto 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            font-weight: bold;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
         }
-
-        .btn-generate {
-            background: linear-gradient(135deg, #2E86AB 0%, #3B6F8F 100%);
+        
+        .step.active .step-circle {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed .step-circle {
+            background: var(--success-green);
+            border-color: var(--success-green);
             color: white;
         }
-
-        .btn-generate:hover {
-            background: linear-gradient(135deg, #246a85 0%, #2E5A74 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(46, 134, 171, 0.3);
-        }
-
-        .btn-download {
-            background: linear-gradient(135deg, #6A4C93 0%, #5A3C7A 100%);
-            color: white;
-        }
-
-        .btn-download:hover {
-            background: linear-gradient(135deg, #5A3C7A 0%, #4A2C6A 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(106, 76, 147, 0.3);
-        }
-
-        .btn-print {
-            background: linear-gradient(135deg, #FF6B35 0%, #E55A2B 100%);
-            color: white;
-        }
-
-        .btn-print:hover {
-            background: linear-gradient(135deg, #E55A2B 0%, #CC491B 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
-        }
-
-        .icon {
-            font-size: 1.3rem;
-        }
-
-        /* Certificate Styling */
-        .certificate-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #certificateCanvas {
-            background: white;
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 1.414 / 1; /* A4 ratio */
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-            display: none;
-        }
-
-        .certificate {
-            width: 100%;
-            height: 100%;
-            padding: 60px;
-            position: relative;
-            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
-            font-family: 'Playfair Display', serif;
-        }
-
-        .certificate-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.03;
-            background-image: 
-                radial-gradient(circle at 20% 30%, #2E86AB 2px, transparent 2px),
-                radial-gradient(circle at 80% 70%, #6A4C93 2px, transparent 2px);
-            background-size: 100px 100px;
-        }
-
-        .certificate-border {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            bottom: 20px;
-            border: 3px double #2E86AB;
-            pointer-events: none;
-        }
-
-        .certificate-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid rgba(46, 134, 171, 0.2);
-            position: relative;
-        }
-
-        .certificate-title {
-            font-size: 3.8rem;
-            color: #2E86AB;
-            font-weight: 900;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .certificate-subtitle {
-            font-size: 1.3rem;
-            color: #6A4C93;
-            font-style: italic;
-            letter-spacing: 2px;
-        }
-
-        .certificate-body {
-            text-align: center;
-            margin: 60px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .certificate-text {
-            font-size: 1.4rem;
-            line-height: 1.8;
-            color: #444;
-            margin-bottom: 40px;
-        }
-
-        .awarded-to {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .recipient-name {
-            font-size: 3.5rem;
-            color: #2E86AB;
-            font-weight: 700;
-            margin: 30px 0;
-            padding: 20px;
-            background: linear-gradient(to right, transparent, rgba(46, 134, 171, 0.05), transparent);
-            border-radius: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .certificate-topic {
-            font-size: 1.8rem;
-            color: #6A4C93;
-            margin: 30px 0;
+        
+        .step-label {
             font-weight: 600;
-            padding: 15px;
-            border-top: 2px dashed rgba(106, 76, 147, 0.3);
-            border-bottom: 2px dashed rgba(106, 76, 147, 0.3);
-        }
-
-        .certificate-footer {
-            position: absolute;
-            bottom: 60px;
-            left: 60px;
-            right: 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .signature-line {
-            width: 200px;
-            border-top: 2px solid #2E86AB;
-            margin-top: 10px;
-        }
-
-        .date-container {
-            text-align: right;
-        }
-
-        .date {
-            font-size: 1.2rem;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        .signature-name {
-            font-size: 1.1rem;
-            color: #2E86AB;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-
-        .signature-title {
             font-size: 0.9rem;
-            color: #888;
         }
-
-        .certificate-seal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            opacity: 0.08;
-            background: radial-gradient(circle, #2E86AB 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .watermark {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%) rotate(-45deg);
-            font-size: 120px;
-            color: rgba(46, 134, 171, 0.03);
-            font-weight: 900;
-            white-space: nowrap;
-            letter-spacing: 20px;
-            text-transform: uppercase;
-        }
-
-        .instructions {
+        
+        .content-section {
             background: white;
-            padding: 25px;
             border-radius: 15px;
-            margin-top: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            display: none;
-        }
-
-        .instructions h3 {
-            color: #2E86AB;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .instructions ol {
-            padding-left: 20px;
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .instructions li {
-            margin-bottom: 10px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-            color: #2E86AB;
-            font-size: 1.2rem;
-        }
-
-        .loading-spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #2E86AB;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .success-message {
-            background: #4CAF50;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             display: none;
             animation: fadeIn 0.5s ease;
         }
-
+        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .certificate-controls {
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        h2 {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        .interactive-box {
+            background: var(--light-gray);
+            border-left: 5px solid var(--accent-orange);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .example-box {
+            background: #e8f4fd;
+            border: 2px dashed var(--primary-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .database-card {
+            background: white;
+            border: 1px solid var(--medium-gray);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .database-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .database-card h4 {
+            color: var(--secondary-purple);
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .button-group {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            width: 100%;
-            max-width: 800px;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #246a85;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+        
+        .btn-secondary:hover {
+            background: #c9c9c9;
+        }
+        
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            color: var(--primary-blue);
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: var(--dark-gray);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .quiz-box {
+            background: #fff9e6;
+            border: 2px solid var(--warning-yellow);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .quiz-question {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .quiz-option {
+            background: white;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid var(--medium-gray);
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            background: var(--light-gray);
+        }
+        
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: var(--success-green);
+        }
+        
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .checklist li {
+            padding: 10px 0 10px 35px;
+            position: relative;
+        }
+        
+        .checklist li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 25px;
+            height: 25px;
+            background: var(--success-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .completion-badge {
+            display: inline-block;
+            background: var(--success-green);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-tracker {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .progress-tracker::before {
+                display: none;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            
+            .step-circle {
+                margin: 0 15px 0 0;
+                flex-shrink: 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Form Panel -->
-        <div class="form-panel">
-            <h1>🎓 Research Certificate Generator</h1>
-            <p>Create a professional certificate for completing your IMG research project</p>
-            
-            <div class="form-group">
-                <label for="name">Your Full Name:</label>
-                <input type="text" id="name" placeholder="Enter your name as you want it to appear" value="Dr. Jane Smith">
-                <div class="preview-text">Example: Dr. John Doe or Jane Smith, MD</div>
+        <header>
+            <h1>🌍 Complete Research Guide for IMGs</h1>
+            <p class="subtitle">Step-by-Step Journey from Idea to Publication Using U.S. Healthcare Data</p>
+            <p>Designed specifically for International Medical Graduates unfamiliar with U.S. research systems</p>
+        </header>
+        
+        <div class="progress-tracker">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Idea & Question</div>
             </div>
-
-            <div class="form-group">
-                <label for="topic">Research Topic:</label>
-                <input type="text" id="topic" placeholder="Enter your research topic" value="Telemedicine Utilization & Cost Analysis">
-                <div class="preview-text">Example: Telemedicine Patterns, Diabetes Management, etc.</div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Database Access</div>
             </div>
-
-            <div class="form-group">
-                <label for="date">Certificate Date:</label>
-                <input type="date" id="date" value="2024-12-15">
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Analysis Plan</div>
             </div>
-
-            <div class="btn-group">
-                <button class="btn-generate" onclick="generateCertificate()">
-                    <span class="icon">🎨</span> Generate Certificate
-                </button>
+            <div class="step" id="step4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Manuscript Writing</div>
             </div>
-
-            <div class="instructions" id="instructions">
-                <h3>📋 How to Download Your Certificate:</h3>
-                <ol>
-                    <li>Review your certificate on the right</li>
-                    <li>Click "Download as PDF" to save to your computer</li>
-                    <li>Click "Print Certificate" for a physical copy</li>
-                    <li>Share on LinkedIn and include in your portfolio</li>
-                </ol>
-            </div>
-
-            <div class="loading" id="loading">
-                <div class="loading-spinner"></div>
-                <p>Generating your professional certificate...</p>
-            </div>
-
-            <div class="success-message" id="successMessage">
-                ✅ Certificate generated successfully!
+            <div class="step" id="step5">
+                <div class="step-circle">5</div>
+                <div class="step-label">Submission & Beyond</div>
             </div>
         </div>
+        
+        <!-- Step 1: Idea & Question -->
+        <section class="content-section active" id="section1">
+            <h2>Step 1: Developing Your Research Idea</h2>
+            
+            <div class="interactive-box">
+                <h3>🎯 Why This Matters for IMGs</h3>
+                <p>As an IMG, research experience helps you:</p>
+                <ul class="checklist">
+                    <li>Stand out in residency applications</li>
+                    <li>Understand the U.S. healthcare system</li>
+                    <li>Build relationships with U.S. mentors</li>
+                    <li>Develop skills transferable to clinical practice</li>
+                </ul>
+            </div>
+            
+            <div class="example-box">
+                <h3>📋 Example: Our Telemedicine Study</h3>
+                <p><strong>Initial Observation:</strong> "During COVID, everyone used video visits. Now, I notice many patients prefer phone calls."</p>
+                <p><strong>Research Question:</strong> "What are the current patterns of telemedicine utilization in office-based care, and do patients prefer audio or video visits?"</p>
+                <p><strong>Why it works:</strong> Specific, measurable, relevant, and uses available data.</p>
+            </div>
+            
+            <div class="interactive-box">
+                <h3>🧠 Brainstorm Your Own Idea</h3>
+                <p>Think about:</p>
+                <ol>
+                    <li>What clinical patterns have you observed?</li>
+                    <li>What questions came up during your rotations?</li>
+                    <li>What healthcare topics interest you most?</li>
+                </ol>
+                <textarea id="ideaInput" placeholder="Type your research idea here..." rows="3" style="width: 100%; padding: 10px; border: 2px solid var(--primary-blue); border-radius: 5px; margin-top: 10px;"></textarea>
+                <button onclick="saveIdea()" style="margin-top: 10px; background: var(--accent-orange); color: white;">Save My Idea</button>
+            </div>
+            
+            <div class="quiz-box">
+                <div class="quiz-question">What makes a good research question for database studies?</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'correct')">Specific, measurable, and answerable with available data</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Broad enough to cover many topics at once</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Based only on personal clinical experience</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Requiring experimental intervention</div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevSection()">Previous</button>
+                <button class="btn-primary" onclick="nextSection()">Next: Database Access</button>
+            </div>
+        </section>
+        
+        <!-- Step 2: Database Access -->
+        <section class="content-section" id="section2">
+            <h2>Step 2: Accessing U.S. Healthcare Databases</h2>
+            
+            <div class="interactive-box">
+                <h3>📊 Free Databases Available to IMGs</h3>
+                <p>You don't need institutional access! These are publicly available:</p>
+            </div>
+            
+            <div class="database-card" onclick="showDatabaseInfo('MEPS')">
+                <h4>🏥 MEPS (Medical Expenditure Panel Survey)</h4>
+                <p><strong>Best for:</strong> Cost, utilization, insurance coverage studies</p>
+                <p><strong>Sample:</strong> ~35,000 individuals annually</p>
+                <p><strong>Access:</strong> Completely free after registration</p>
+                <p><em>Click for setup guide</em></p>
+            </div>
+            
+            <div class="database-card" onclick="showDatabaseInfo('NHANES')">
+                <h4>🔬 NHANES (National Health and Nutrition Examination Survey)</h4>
+                <p><strong>Best for:</strong> Disease prevalence, biomarkers, nutrition</p>
+                <p><strong>Sample:</strong> ~5,000 individuals annually with lab data</p>
+                <p><strong>Access:</strong> Direct download, no registration needed</p>
+            </div>
+            
+            <div class="database-card" onclick="showDatabaseInfo('HCUP')">
+                <h4>🏨 HCUP (Healthcare Cost and Utilization Project)</h4>
+                <p><strong>Best for:</strong> Hospitalizations, procedures, outcomes</p>
+                <p><strong>Sample:</strong> Millions of hospital discharges</p>
+                <p><strong>Access:</strong> Free with data use agreement</p>
+            </div>
+            
+            <div class="interactive-box" id="databaseGuide" style="display: none;">
+                <h3 id="dbTitle">Database Setup Guide</h3>
+                <div id="dbContent"></div>
+            </div>
+            
+            <div class="example-box">
+                <h3>🔑 MEPS Registration Walkthrough</h3>
+                <ol>
+                    <li>Go to <a href="https://meps.ahrq.gov" target="_blank">meps.ahrq.gov</a></li>
+                    <li>Click "Data Center" → "MEPS Data Files"</li>
+                    <li>Select year (2023 recommended for current data)</li>
+                    <li>Download "Office-Based Medical Provider Visits" file</li>
+                    <li>Download corresponding documentation (codebook)</li>
+                </ol>
+                <p><span class="tooltip">💡 Pro Tip
+                    <span class="tooltiptext">Start with 1-2 years of data first. Later, you can add more years for longitudinal analysis.</span>
+                </span></p>
+            </div>
+            
+            <div class="code-block">
+                <h4>📁 How Data Files Look (Example)</h4>
+                <pre>
+MEPS_2023_OfficeVisits.csv:
 
-        <!-- Certificate Panel -->
-        <div class="certificate-panel">
-            <div id="certificateCanvas">
-                <div class="certificate">
-                    <div class="certificate-bg"></div>
-                    <div class="certificate-border"></div>
-                    <div class="certificate-seal"></div>
-                    <div class="watermark">ACHIEVEMENT</div>
-                    
-                    <div class="certificate-header">
-                        <h1 class="certificate-title">Certificate of Completion</h1>
-                        <p class="certificate-subtitle">International Medical Graduate Research Program</p>
+PatientID, VisitType, TelehealthFlag, Modality, Cost, Age, Insurance
+001, Follow-up, Yes, Audio, 45.00, 45, Private
+002, NewPatient, No, In-person, 65.00, 32, Medicaid
+003, Consult, Yes, Video, 50.00, 58, Medicare
+...</pre>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevSection()">Previous</button>
+                <button class="btn-primary" onclick="nextSection()">Next: Analysis Plan</button>
+            </div>
+        </section>
+        
+        <!-- Step 3: Analysis Plan -->
+        <section class="content-section" id="section3">
+            <h2>Step 3: Statistical Analysis for Beginners</h2>
+            
+            <div class="interactive-box">
+                <h3>🆓 Free Software Options</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--medium-gray);">
+                        <h4 style="color: var(--primary-blue);">R + RStudio</h4>
+                        <p><strong>Best for:</strong> Complex analyses, publication-ready graphs</p>
+                        <p><strong>Learning:</strong> 2-3 weeks of dedicated practice</p>
+                        <button onclick="showRCode()" style="background: var(--primary-blue); color: white; padding: 5px 15px; border-radius: 5px; border: none; margin-top: 10px;">See Example Code</button>
                     </div>
-
-                    <div class="certificate-body">
-                        <p class="certificate-text">
-                            This is to certify that
-                        </p>
-                        
-                        <p class="awarded-to">Awarded to</p>
-                        <div class="recipient-name" id="displayName">Dr. Jane Smith</div>
-                        
-                        <p class="certificate-text">
-                            has successfully completed the research project
-                        </p>
-                        
-                        <div class="certificate-topic" id="displayTopic">
-                            Telemedicine Utilization & Cost Analysis
-                        </div>
-                        
-                        <p class="certificate-text">
-                            demonstrating excellence in research methodology, data analysis, and academic writing.
-                        </p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--medium-gray);">
+                        <h4 style="color: var(--secondary-purple);">Jamovi</h4>
+                        <p><strong>Best for:</strong> Click-based interface (like SPSS but free)</p>
+                        <p><strong>Learning:</strong> 1 week, very intuitive</p>
                     </div>
-
-                    <div class="certificate-footer">
-                        <div class="signature">
-                            <div class="signature-line"></div>
-                            <p class="signature-name">Dr. Sarah Johnson</p>
-                            <p class="signature-title">Research Director, IMG Mentorship Program</p>
-                        </div>
-                        
-                        <div class="date-container">
-                            <div class="signature-line"></div>
-                            <p class="date" id="displayDate">December 15, 2024</p>
-                            <p class="signature-title">Date of Completion</p>
-                        </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--medium-gray);">
+                        <h4 style="color: var(--accent-orange);">Google Colab + Python</h4>
+                        <p><strong>Best for:</strong> Online analysis, no installation needed</p>
+                        <p><strong>Learning:</strong> 3-4 weeks if new to programming</p>
                     </div>
                 </div>
             </div>
+            
+            <div id="rCodeExample" style="display: none;">
+                <div class="code-block">
+                    <h4>📊 R Code for Telemedicine Analysis</h4>
+                    <pre>
+# Load necessary packages
+library(tidyverse)  # Data manipulation
+library(survey)     # For survey weights
+library(ggplot2)    # For graphs
 
-            <div class="certificate-controls">
-                <button class="btn-download" onclick="downloadPDF()">
-                    <span class="icon">📥</span> Download as PDF
-                </button>
-                <button class="btn-print" onclick="printCertificate()">
-                    <span class="icon">🖨️</span> Print Certificate
-                </button>
+# 1. Load MEPS data
+meps_data <- read_csv("MEPS_2023_OfficeVisits.csv")
+
+# 2. Calculate telemedicine percentage
+tele_percent <- meps_data %>%
+  summarize(tele_percent = mean(TelehealthFlag == "Yes", na.rm = TRUE) * 100)
+
+# 3. Create modality distribution
+modality_dist <- meps_data %>%
+  filter(TelehealthFlag == "Yes") %>%
+  count(Modality) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# 4. Basic bar chart
+ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Telemedicine Modality Distribution",
+       y = "Percentage (%)")
+                    </pre>
+                </div>
             </div>
-        </div>
+            
+            <div class="example-box">
+                <h3>📈 Step-by-Step Analysis Plan</h3>
+                <ol>
+                    <li><strong>Descriptive Statistics:</strong> Means, percentages, counts</li>
+                    <li><strong>Univariate Analysis:</strong> One variable at a time</li>
+                    <li><strong>Bivariate Analysis:</strong> Compare two variables (t-test, chi-square)</li>
+                    <li><strong>Multivariate Analysis:</strong> Regression if needed (optional for beginners)</li>
+                </ol>
+                <p><span class="tooltip">⚠️ Common IMG Mistake
+                    <span class="tooltiptext">Forgetting to apply survey weights in MEPS/NHANES data. This gives incorrect estimates!</span>
+                </span></p>
+            </div>
+            
+            <div class="quiz-box">
+                <div class="quiz-question">Which of these is ESSENTIAL when analyzing MEPS data?</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Using only the most recent year's data</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'correct')">Applying survey weights to get national estimates</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Analyzing every available variable</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Only including patients with complete data</div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevSection()">Previous</button>
+                <button class="btn-primary" onclick="nextSection()">Next: Manuscript Writing</button>
+            </div>
+        </section>
+        
+        <!-- Step 4: Manuscript Writing -->
+        <section class="content-section" id="section4">
+            <h2>Step 4: Writing Your First Manuscript</h2>
+            
+            <div class="interactive-box">
+                <h3>📝 IMRAD Structure Made Simple</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-blue);">
+                        <h4>I = Introduction</h4>
+                        <p><strong>Length:</strong> 250-300 words</p>
+                        <p><strong>Answer:</strong> Why does this matter?</p>
+                    </div>
+                    <div style="background: #f0e8f8; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-purple);">
+                        <h4>M = Methods</h4>
+                        <p><strong>Length:</strong> 300-400 words</p>
+                        <p><strong>Answer:</strong> How did you study it?</p>
+                    </div>
+                    <div style="background: #fff0e8; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-orange);">
+                        <h4>R = Results</h4>
+                        <p><strong>Length:</strong> 200-300 words</p>
+                        <p><strong>Answer:</strong> What did you find?</p>
+                    </div>
+                    <div style="background: #e8f8f0; padding: 15px; border-radius: 8px; border-left: 4px solid var(--success-green);">
+                        <h4>D = Discussion</h4>
+                        <p><strong>Length:</strong> 400-500 words</p>
+                        <p><strong>Answer:</strong> What does it mean?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>🔤 Abstract Template (Fill in the Blanks)</h3>
+                <div style="background: white; padding: 20px; border: 1px solid var(--medium-gray); border-radius: 8px; margin-top: 10px;">
+                    <p><strong>TITLE:</strong> <span contenteditable="true" style="background: yellow; padding: 2px;">[Brief, descriptive title about your topic]</span></p>
+                    <p><strong>BACKGROUND:</strong> <span contenteditable="true" style="background: #e0ffe0; padding: 2px;">[1-2 sentences about why this matters]</span> Previous studies have shown <span contenteditable="true" style="background: #e0ffe0; padding: 2px;">[mention knowledge gap]</span>.</p>
+                    <p><strong>METHODS:</strong> We analyzed <span contenteditable="true" style="background: #e0f7ff; padding: 2px;">[database name and year]</span> data. Our sample included <span contenteditable="true" style="background: #e0f7ff; padding: 2px;">[number]</span> patients/visits. We examined <span contenteditable="true" style="background: #e0f7ff; padding: 2px;">[main variables]</span>.</p>
+                    <p><strong>RESULTS:</strong> We found <span contenteditable="true" style="background: #fff0e0; padding: 2px;">[key percentage or finding]</span>. Specifically, <span contenteditable="true" style="background: #fff0e0; padding: 2px;">[second important finding]</span>.</p>
+                    <p><strong>CONCLUSIONS:</strong> <span contenteditable="true" style="background: #f0e0ff; padding: 2px;">[Main takeaway message]</span>. These findings suggest <span contenteditable="true" style="background: #f0e0ff; padding: 2px;">[implication for practice or policy]</span>.</p>
+                </div>
+            </div>
+            
+            <div class="interactive-box">
+                <h3>🎯 IMG-Friendly Journals to Target First</h3>
+                <ul class="checklist">
+                    <li><strong>Cureus</strong> - Fast review, high acceptance rate</li>
+                    <li><strong>PLOS ONE</strong> - Prestigious, open access</li>
+                    <li><strong>Journal of Community Hospital Internal Medicine</strong> - IMG-friendly</li>
+                    <li><strong>Your Specialty's Regional Journal</strong> - Lower competition</li>
+                </ul>
+                <p><span class="tooltip">💡 Strategy
+                    <span class="tooltiptext">Submit to 2-3 journals simultaneously if they allow it, or have a tiered submission plan.</span>
+                </span></p>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevSection()">Previous</button>
+                <button class="btn-primary" onclick="nextSection()">Next: Submission & Beyond</button>
+            </div>
+        </section>
+        
+        <!-- Step 5: Submission & Beyond -->
+        <section class="content-section" id="section5">
+            <h2>Step 5: Submission, Presentation & Career Building</h2>
+            
+            <div class="interactive-box">
+                <h3>📅 12-Week Project Timeline</h3>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="width: 30px; height: 30px; background: var(--primary-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">W1-2</div>
+                        <div><strong>Literature Review & Proposal</strong> - Read 10 key papers</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="width: 30px; height: 30px; background: var(--secondary-purple); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">W3-4</div>
+                        <div><strong>Data Access & Analysis</strong> - Download data, run basic stats</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="width: 30px; height: 30px; background: var(--accent-orange); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">W5-7</div>
+                        <div><strong>Manuscript Writing</strong> - Complete first draft</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="width: 30px; height: 30px; background: var(--success-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">W8-10</div>
+                        <div><strong>Revision & Submission</strong> - Get feedback, submit</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 30px; height: 30px; background: var(--warning-yellow); color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">W11-12</div>
+                        <div><strong>Conference Abstract</strong> - Submit to 1-2 conferences</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>🎤 Presentation Tips for IMGs</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 8px;">
+                        <h4>Pronunciation Practice</h4>
+                        <p>Record yourself saying:</p>
+                        <ul>
+                            <li>"Telemedicine" (tel-uh-MED-uh-sin)</li>
+                            <li>"Utilization" (yoo-tuh-luh-ZAY-shun)</li>
+                            <li>"Statistical" (stuh-TIS-ti-kul)</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f0e8f8; padding: 15px; border-radius: 8px;">
+                        <h4>Slide Design</h4>
+                        <ul>
+                            <li>Max 6 lines per slide</li>
+                            <li>24pt font minimum</li>
+                            <li>Use visuals over text</li>
+                            <li>Practice timing (1 min/slide)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interactive-box">
+                <h3>🚀 Beyond Publication: Career Advancement</h3>
+                <ul class="checklist">
+                    <li>Add publication to your ERAS/CV immediately</li>
+                    <li>Present at virtual conferences (low cost for IMGs)</li>
+                    <li>Connect with co-authors on LinkedIn</li>
+                    <li>Use this project as talking point in interviews</li>
+                    <li>Consider next project with same database</li>
+                </ul>
+            </div>
+            
+            <div class="quiz-box">
+                <div class="quiz-question">What should you do IMMEDIATELY after getting published?</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Wait for someone to notice your work</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'correct')">Update all your professional profiles and CV</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Take a break from research</div>
+                <div class="quiz-option" onclick="checkAnswer(this, 'incorrect')">Submit to a higher impact journal immediately</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(to right, var(--primary-blue), var(--secondary-purple)); color: white; border-radius: 15px;">
+                <h3>🎉 Congratulations! You're Ready to Start!</h3>
+                <p>You now have a complete roadmap from idea to publication.</p>
+                <button onclick="generateCertificate()" style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevSection()">Previous</button>
+                <button class="btn-success" onclick="startOver()">Start New Project</button>
+            </div>
+        </section>
     </div>
 
     <script>
-        // Format date to display nicely
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
-
-        // Generate certificate preview
-        function generateCertificate() {
-            const name = document.getElementById('name').value.trim();
-            const topic = document.getElementById('topic').value.trim();
-            const date = document.getElementById('date').value;
-            
-            if (!name) {
-                alert('Please enter your name');
-                return;
-            }
-            
-            if (!topic) {
-                alert('Please enter your research topic');
-                return;
-            }
-            
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('instructions').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            
-            // Update certificate content
-            document.getElementById('displayName').textContent = name;
-            document.getElementById('displayTopic').textContent = topic;
-            document.getElementById('displayDate').textContent = formatDate(date);
-            
-            // Show certificate with delay for animation
-            setTimeout(() => {
-                document.getElementById('certificateCanvas').style.display = 'block';
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('instructions').style.display = 'block';
-                document.getElementById('successMessage').style.display = 'block';
-                
-                // Scroll to certificate
-                document.getElementById('certificateCanvas').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 1500);
-        }
-
-        // Download as PDF
-        async function downloadPDF() {
-            const certificate = document.getElementById('certificateCanvas');
-            const name = document.getElementById('name').value.trim().replace(/\s+/g, '_');
-            
-            // Show loading
-            const originalText = document.querySelector('.btn-download').innerHTML;
-            document.querySelector('.btn-download').innerHTML = '<span class="icon">⏳</span> Creating PDF...';
-            document.querySelector('.btn-download').disabled = true;
-            
-            try {
-                const canvas = await html2canvas(certificate, {
-                    scale: 3,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff'
-                });
-                
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF({
-                    orientation: 'landscape',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-                
-                const imgWidth = 297; // A4 width in mm
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                pdf.save(`IMG_Research_Certificate_${name}.pdf`);
-                
-                // Show success message
-                document.getElementById('successMessage').textContent = '✅ PDF downloaded successfully!';
-                document.getElementById('successMessage').style.display = 'block';
-                
-            } catch (error) {
-                alert('Error generating PDF: ' + error.message);
-            } finally {
-                // Restore button
-                document.querySelector('.btn-download').innerHTML = originalText;
-                document.querySelector('.btn-download').disabled = false;
-            }
-        }
-
-        // Print certificate
-        function printCertificate() {
-            const certificate = document.getElementById('certificateCanvas');
-            const printWindow = window.open('', '_blank');
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Print Certificate</title>
-                    <style>
-                        body { 
-                            margin: 0; 
-                            padding: 0; 
-                            display: flex; 
-                            justify-content: center; 
-                            align-items: center; 
-                            min-height: 100vh;
-                            background: #f5f5f5;
-                        }
-                        @media print {
-                            body { background: none; }
-                            @page { margin: 0; }
-                        }
-                        img { 
-                            max-width: 100%; 
-                            height: auto; 
-                            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div id="printContent"></div>
-                    <script>
-                        async function captureAndPrint() {
-                            const canvas = await html2canvas(document.querySelector('.certificate'), {
-                                scale: 2,
-                                useCORS: true,
-                                logging: false,
-                                backgroundColor: '#ffffff'
-                            });
-                            
-                            const img = canvas.toDataURL('image/png');
-                            document.getElementById('printContent').innerHTML = '<img src="' + img + '">';
-                            
-                            setTimeout(() => {
-                                window.print();
-                                window.close();
-                            }, 500);
-                        }
-                        
-                        // Load required libraries
-                        const script1 = document.createElement('script');
-                        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                        script1.onload = captureAndPrint;
-                        document.head.appendChild(script1);
-                    <\/script>
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-        }
-
-        // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
+        let currentSection = 1;
         
-        // Auto-generate on page load with example data
-        window.onload = function() {
-            setTimeout(generateCertificate, 1000);
-        };
-
-        // Allow Enter key to generate certificate
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                generateCertificate();
+        function showSection(sectionNumber) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById('section' + sectionNumber).classList.add('active');
+            
+            // Mark all previous steps as completed, current as active
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById('step' + i);
+                if (i < sectionNumber) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (i === sectionNumber) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
             }
-        });
+            
+            currentSection = sectionNumber;
+        }
+        
+        function nextSection() {
+            if (currentSection < 5) {
+                showSection(currentSection + 1);
+            }
+        }
+        
+        function prevSection() {
+            if (currentSection > 1) {
+                showSection(currentSection - 1);
+            }
+        }
+        
+        function saveIdea() {
+            const idea = document.getElementById('ideaInput').value;
+            if (idea.trim()) {
+                alert('✅ Idea saved! You can come back to it anytime.');
+                localStorage.setItem('imgResearchIdea', idea);
+            } else {
+                alert('Please type your idea first!');
+            }
+        }
+        
+        function showDatabaseInfo(dbName) {
+            const guide = document.getElementById('databaseGuide');
+            const title = document.getElementById('dbTitle');
+            const content = document.getElementById('dbContent');
+            
+            guide.style.display = 'block';
+            
+            if (dbName === 'MEPS') {
+                title.textContent = 'MEPS Setup Guide';
+                content.innerHTML = `
+                    <h4>Step-by-Step Registration:</h4>
+                    <ol>
+                        <li>Visit <a href="https://meps.ahrq.gov" target="_blank">MEPS Website</a></li>
+                        <li>Click "Data Center" in top menu</li>
+                        <li>Click "MEPS Data Files"</li>
+                        <li>Select "2023" (most recent complete year)</li>
+                        <li>Download "Office-Based Medical Provider Visits" (HC-216A)</li>
+                        <li>Download "Full Year Consolidated Data File" (HC-216)</li>
+                        <li>Download documentation PDFs</li>
+                    </ol>
+                    <h4>💡 Tips for IMGs:</h4>
+                    <ul>
+                        <li>Start with 1 year of data to learn</li>
+                        <li>Watch the tutorial videos on the website</li>
+                        <li>Join the MEPS email list for updates</li>
+                        <li>Data files are large - ensure good internet</li>
+                    </ul>
+                `;
+            } else if (dbName === 'NHANES') {
+                title.textContent = 'NHANES Setup Guide';
+                content.innerHTML = `
+                    <h4>Direct Download Access:</h4>
+                    <ol>
+                        <li>Visit <a href="https://wwwn.cdc.gov/nchs/nhanes" target="_blank">NHANES Website</a></li>
+                        <li>No registration needed!</li>
+                        <li>Select year (2017-2020 recommended)</li>
+                        <li>Download data files (XPT format)</li>
+                        <li>Download documentation</li>
+                        <li>Use free NHANES tutorial in R/Python</li>
+                    </ol>
+                `;
+            }
+            
+            // Smooth scroll to guide
+            guide.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function showRCode() {
+            const rCodeDiv = document.getElementById('rCodeExample');
+            rCodeDiv.style.display = rCodeDiv.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function checkAnswer(element, result) {
+            // Remove any previous highlighting
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            // Highlight clicked answer
+            element.classList.add(result);
+            
+            // Show explanation after delay
+            setTimeout(() => {
+                if (result === 'correct') {
+                    alert('✅ Correct! This is essential for valid national estimates.');
+                } else {
+                    alert('❌ Not quite. Survey weights account for complex sampling design.');
+                }
+            }, 300);
+        }
+        
+        function generateCertificate() {
+            const name = prompt('Enter your name for the certificate:');
+            if (name) {
+                
+                alert(`🎊 Congratulations, Dr. ${name}!\n\nYou've completed the IMG Research Guide!\n\nCertificate will display in a differnt window.`);
+                // In a real implementation, this would generate a PDF certificate
+                window.location.href = `./certificate.html?name=${cleanName}`;
+            }
+        }
+        
+        function startOver() {
+            if (confirm('Start a new research project journey?')) {
+                showSection(1);
+                document.getElementById('ideaInput').value = '';
+            }
+        }
+        
+        // Load saved idea if exists
+        window.onload = function() {
+            const savedIdea = localStorage.getItem('imgResearchIdea');
+            if (savedIdea) {
+                document.getElementById('ideaInput').value = savedIdea;
+            }
+        };
     </script>
 </body>
 </html>
