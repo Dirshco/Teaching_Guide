@@ -858,9 +858,18 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
             }, 300);
         }
 
-         
+         function generateCertificate() {
+  const name = prompt("Enter your name:");
+  const topic = prompt("Enter your research topic:");
 
-        function generateCertificate() {
+  if (!name || !topic) return;
+
+  window.location.href =
+    `certificate.html?name=${encodeURIComponent(name)}&topic=${encodeURIComponent(topic)}`;
+}
+
+
+        function generateCertificate3() {
           const name = prompt("Enter your name:");
           const topic = prompt("Enter your research topic:");
 
