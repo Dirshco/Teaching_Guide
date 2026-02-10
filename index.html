@@ -862,8 +862,9 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
                 
                 alert(`🎊 Congratulations, Dr. ${name}!\n\nYou've completed the IMG Research Guide!\n\nCertificate will display in a differnt window.`);
                 // In a real implementation, this would generate a PDF certificate
-                window.location.href = `./certificate.html?name=${cleanName}`;
+              
             }
+              window.location.href = `./certificate.html?name=${cleanName}`;
         }
         
         function startOver() {
