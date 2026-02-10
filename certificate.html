@@ -470,8 +470,8 @@
                     <div class="watermark">ACHIEVEMENT</div>
                     
                     <div class="certificate-header">
-                        <h1 class="certificate-title">Certificate of Completion</h1>
-                        <p class="certificate-subtitle">International Medical Graduate Research Program</p>
+                        <h3 class="certificate-title">Certificate of Completion</h3>
+                        <p class="certificate-subtitle">Research Program - Part 1</p>
                     </div>
 
                     <div class="certificate-body">
@@ -498,13 +498,13 @@
                     <div class="certificate-footer">
                         <div class="signature">
                             <div class="signature-line"></div>
-                            <p class="signature-name">Dr. Sarah Johnson</p>
-                            <p class="signature-title">Research Director, IMG Mentorship Program</p>
+                            <p class="signature-name">Dr. Nadir Abdelrahman</p>
+                            <p class="signature-title">Director, TGRF Program</p>
                         </div>
                         
                         <div class="date-container">
                             <div class="signature-line"></div>
-                            <p class="date" id="displayDate">December 15, 2024</p>
+                            <p class="date" id="displayDate">March 1, 2026</p>
                             <p class="signature-title">Date of Completion</p>
                         </div>
                     </div>
@@ -683,8 +683,8 @@
         document.getElementById('date').valueAsDate = new Date();
         
         // Auto-generate on page load with example data
-        window.onload = function() {
-            setTimeout(generateCertificate, 1000);
+       window.onload = function () {
+          document.getElementById("certificateCanvas").style.display = "none";
         };
 
         // Allow Enter key to generate certificate
