@@ -719,7 +719,7 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
             <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(to right, var(--primary-blue), var(--secondary-purple)); color: white; border-radius: 15px;">
                 <h3>🎉 Congratulations! You're Ready to Start!</h3>
                 <p>You now have a complete roadmap from idea to publication.</p>
-                <button onclick="generateCertificate()" style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button>
+                <button onclick="generateCertificate2()" style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button>
             </div>
             
             <div class="button-group">
@@ -854,6 +854,10 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
                     alert('❌ Not quite. Survey weights account for complex sampling design.');
                 }
             }, 300);
+        }
+
+         function generateCertificate() {
+          window.location.href = "./certificate.html";
         }
         
         function generateCertificate() {
