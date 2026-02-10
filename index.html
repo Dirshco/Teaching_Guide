@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMG Research Certificate Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            min-height: 100vh;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form Styling */
+        .form-panel {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(46, 134, 171, 0.1);
+            position: sticky;
+            top: 30px;
+        }
+
+        .form-panel h1 {
+            font-family: 'Playfair Display', serif;
+            color: #2E86AB;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        .form-panel p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2E86AB;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
+            border-color: #2E86AB;
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
+        }
+
+        .preview-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #2E86AB 0%, #3B6F8F 100%);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #246a85 0%, #2E5A74 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 134, 171, 0.3);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #6A4C93 0%, #5A3C7A 100%);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(135deg, #5A3C7A 0%, #4A2C6A 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(106, 76, 147, 0.3);
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #FF6B35 0%, #E55A2B 100%);
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: linear-gradient(135deg, #E55A2B 0%, #CC491B 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .icon {
+            font-size: 1.3rem;
+        }
+
+        /* Certificate Styling */
+        .certificate-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #certificateCanvas {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1.414 / 1; /* A4 ratio */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+        }
+
+        .certificate {
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .certificate-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #2E86AB 2px, transparent 2px),
+                radial-gradient(circle at 80% 70%, #6A4C93 2px, transparent 2px);
+            background-size: 100px 100px;
+        }
+
+        .certificate-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 3px double #2E86AB;
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(46, 134, 171, 0.2);
+            position: relative;
+        }
+
+        .certificate-title {
+            font-size: 3.8rem;
+            color: #2E86AB;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .certificate-subtitle {
+            font-size: 1.3rem;
+            color: #6A4C93;
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        .certificate-body {
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-text {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 40px;
+        }
+
+        .awarded-to {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .recipient-name {
+            font-size: 3.5rem;
+            color: #2E86AB;
+            font-weight: 700;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(to right, transparent, rgba(46, 134, 171, 0.05), transparent);
+            border-radius: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .certificate-topic {
+            font-size: 1.8rem;
+            color: #6A4C93;
+            margin: 30px 0;
+            font-weight: 600;
+            padding: 15px;
+            border-top: 2px dashed rgba(106, 76, 147, 0.3);
+            border-bottom: 2px dashed rgba(106, 76, 147, 0.3);
+        }
+
+        .certificate-footer {
+            position: absolute;
+            bottom: 60px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .signature-line {
+            width: 200px;
+            border-top: 2px solid #2E86AB;
+            margin-top: 10px;
+        }
+
+        .date-container {
+            text-align: right;
+        }
+
+        .date {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .signature-name {
+            font-size: 1.1rem;
+            color: #2E86AB;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .signature-title {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .certificate-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            opacity: 0.08;
+            background: radial-gradient(circle, #2E86AB 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%) rotate(-45deg);
+            font-size: 120px;
+            color: rgba(46, 134, 171, 0.03);
+            font-weight: 900;
+            white-space: nowrap;
+            letter-spacing: 20px;
+            text-transform: uppercase;
+        }
+
+        .instructions {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .instructions h3 {
+            color: #2E86AB;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #2E86AB;
+            font-size: 1.2rem;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2E86AB;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .certificate-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <h1>🎓 Research Certificate Generator</h1>
+            <p>Create a professional certificate for completing your IMG research project</p>
+            
+            <div class="form-group">
+                <label for="name">Your Full Name:</label>
+                <input type="text" id="name" placeholder="Enter your name as you want it to appear" value="Dr. Jane Smith">
+                <div class="preview-text">Example: Dr. John Doe or Jane Smith, MD</div>
+            </div>
+
+            <div class="form-group">
+                <label for="topic">Research Topic:</label>
+                <input type="text" id="topic" placeholder="Enter your research topic" value="Telemedicine Utilization & Cost Analysis">
+                <div class="preview-text">Example: Telemedicine Patterns, Diabetes Management, etc.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Certificate Date:</label>
+                <input type="date" id="date" value="2024-12-15">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-generate" onclick="generateCertificate()">
+                    <span class="icon">🎨</span> Generate Certificate
+                </button>
+            </div>
+
+            <div class="instructions" id="instructions">
+                <h3>📋 How to Download Your Certificate:</h3>
+                <ol>
+                    <li>Review your certificate on the right</li>
+                    <li>Click "Download as PDF" to save to your computer</li>
+                    <li>Click "Print Certificate" for a physical copy</li>
+                    <li>Share on LinkedIn and include in your portfolio</li>
+                </ol>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Generating your professional certificate...</p>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                ✅ Certificate generated successfully!
+            </div>
+        </div>
+
+        <!-- Certificate Panel -->
+        <div class="certificate-panel">
+            <div id="certificateCanvas">
+                <div class="certificate">
+                    <div class="certificate-bg"></div>
+                    <div class="certificate-border"></div>
+                    <div class="certificate-seal"></div>
+                    <div class="watermark">ACHIEVEMENT</div>
+                    
+                    <div class="certificate-header">
+                        <h1 class="certificate-title">Certificate of Completion</h1>
+                        <p class="certificate-subtitle">International Medical Graduate Research Program</p>
+                    </div>
+
+                    <div class="certificate-body">
+                        <p class="certificate-text">
+                            This is to certify that
+                        </p>
+                        
+                        <p class="awarded-to">Awarded to</p>
+                        <div class="recipient-name" id="displayName">Dr. Jane Smith</div>
+                        
+                        <p class="certificate-text">
+                            has successfully completed the research project
+                        </p>
+                        
+                        <div class="certificate-topic" id="displayTopic">
+                            Telemedicine Utilization & Cost Analysis
+                        </div>
+                        
+                        <p class="certificate-text">
+                            demonstrating excellence in research methodology, data analysis, and academic writing.
+                        </p>
+                    </div>
+
+                    <div class="certificate-footer">
+                        <div class="signature">
+                            <div class="signature-line"></div>
+                            <p class="signature-name">Dr. Sarah Johnson</p>
+                            <p class="signature-title">Research Director, IMG Mentorship Program</p>
+                        </div>
+                        
+                        <div class="date-container">
+                            <div class="signature-line"></div>
+                            <p class="date" id="displayDate">December 15, 2024</p>
+                            <p class="signature-title">Date of Completion</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="certificate-controls">
+                <button class="btn-download" onclick="downloadPDF()">
+                    <span class="icon">📥</span> Download as PDF
+                </button>
+                <button class="btn-print" onclick="printCertificate()">
+                    <span class="icon">🖨️</span> Print Certificate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Format date to display nicely
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Generate certificate preview
+        function generateCertificate() {
+            const name = document.getElementById('name').value.trim();
+            const topic = document.getElementById('topic').value.trim();
+            const date = document.getElementById('date').value;
+            
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            if (!topic) {
+                alert('Please enter your research topic');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Update certificate content
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('displayTopic').textContent = topic;
+            document.getElementById('displayDate').textContent = formatDate(date);
+            
+            // Show certificate with delay for animation
+            setTimeout(() => {
+                document.getElementById('certificateCanvas').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('instructions').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Scroll to certificate
+                document.getElementById('certificateCanvas').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }, 1500);
+        }
+
+        // Download as PDF
+        async function downloadPDF() {
+            const certificate = document.getElementById('certificateCanvas');
+            const name = document.getElementById('name').value.trim().replace(/\s+/g, '_');
+            
+            // Show loading
+            const originalText = document.querySelector('.btn-download').innerHTML;
+            document.querySelector('.btn-download').innerHTML = '<span class="icon">⏳</span> Creating PDF...';
+            document.querySelector('.btn-download').disabled = true;
+            
+            try {
+                const canvas = await html2canvas(certificate, {
+                    scale: 3,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const imgWidth = 297; // A4 width in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`IMG_Research_Certificate_${name}.pdf`);
+                
+                // Show success message
+                document.getElementById('successMessage').textContent = '✅ PDF downloaded successfully!';
+                document.getElementById('successMessage').style.display = 'block';
+                
+            } catch (error) {
+                alert('Error generating PDF: ' + error.message);
+            } finally {
+                // Restore button
+                document.querySelector('.btn-download').innerHTML = originalText;
+                document.querySelector('.btn-download').disabled = false;
+            }
+        }
+
+        // Print certificate
+        function printCertificate() {
+            const certificate = document.getElementById('certificateCanvas');
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Certificate</title>
+                    <style>
+                        body { 
+                            margin: 0; 
+                            padding: 0; 
+                            display: flex; 
+                            justify-content: center; 
+                            align-items: center; 
+                            min-height: 100vh;
+                            background: #f5f5f5;
+                        }
+                        @media print {
+                            body { background: none; }
+                            @page { margin: 0; }
+                        }
+                        img { 
+                            max-width: 100%; 
+                            height: auto; 
+                            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div id="printContent"></div>
+                    <script>
+                        async function captureAndPrint() {
+                            const canvas = await html2canvas(document.querySelector('.certificate'), {
+                                scale: 2,
+                                useCORS: true,
+                                logging: false,
+                                backgroundColor: '#ffffff'
+                            });
+                            
+                            const img = canvas.toDataURL('image/png');
+                            document.getElementById('printContent').innerHTML = '<img src="' + img + '">';
+                            
+                            setTimeout(() => {
+                                window.print();
+                                window.close();
+                            }, 500);
+                        }
+                        
+                        // Load required libraries
+                        const script1 = document.createElement('script');
+                        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                        script1.onload = captureAndPrint;
+                        document.head.appendChild(script1);
+                    <\/script>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+        }
+
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+        
+        // Auto-generate on page load with example data
+        window.onload = function() {
+            setTimeout(generateCertificate, 1000);
+        };
+
+        // Allow Enter key to generate certificate
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateCertificate();
+            }
+        });
+    </script>
+</body>
+</html>
