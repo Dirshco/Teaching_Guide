@@ -720,8 +720,8 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
                 <h3>🎉 Congratulations! You're Ready to Start!</h3>
                 <p>You now have a complete roadmap from idea to publication.</p>
 
-                <a href="certificate.html">     <button style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button>           </a>
-<!--  old button    <button onclick="generateCertificate()" style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button> -->
+<!--  old button                <a href="certificate.html">     <button style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button>           </a> -->
+           <button onclick="generateCertificate()" style="background: white; color: var(--primary-blue); padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer;">Generate My Completion Certificate</button> 
             </div>
             
             <div class="button-group">
@@ -858,11 +858,21 @@ ggplot(modality_dist, aes(x = Modality, y = percent, fill = Modality)) +
             }, 300);
         }
 
-         function generateCertificate() {
-          window.location.href = "./certificate.html";
+         
+
+        function generateCertificate() {
+          const name = prompt("Enter your name:");
+          const topic = prompt("Enter your research topic:");
+
+          if (!name || !topic) return;
+
+          const cleanName = encodeURIComponent(name.trim());
+          const cleanTopic = encodeURIComponent(topic.trim());
+
+          window.location.href = `./certificate.html?name=${cleanName}&topic=${cleanTopic}`;
         }
         
-        function generateCertificate() {
+        function generateCertificate0() {
             const name = prompt('Enter your name for the certificate:');
             if (name) {
                 
