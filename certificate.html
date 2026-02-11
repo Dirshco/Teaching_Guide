@@ -501,8 +501,9 @@
 
       <div class="form-group">
         <label for="topic">Research Topic:</label>
-        <input type="text" id="topic" placeholder="Using U.S. Healthcare Data for Publication">
-        <div class="preview-text" style="display: none;"></div>
+        <input type="text" id="topic" type="hidden">
+        <input type="text" id="topic2" placeholder="Using U.S. Healthcare Data for Publication">
+        <div class="preview-text" style="display: none;">Using U.S. Healthcare Data for Publication</div>
       </div>
 
       <div class="form-group">
@@ -574,7 +575,7 @@
 
             <p class="certificate-text">for successfully completing the course titled:</p>
             
-            <div class="certificate-topic" id="displayTopic">Title Topic Here</div>
+            <div class="certificate-topic" id="displayTopic">Using U.S. Healthcare Data for Publication</div>
           </div>
           <div class="certificate-footer">
 <div class="signature-block">
@@ -672,7 +673,7 @@
 
     function generateCertificate() {
       const name = document.getElementById("name").value.trim();
-      const topic = document.getElementById("topic").value.trim();
+      const topic = "Using U.S. Healthcare Data for Publication"; // document.getElementById("topic2").value.trim();
       const date = document.getElementById("date").value;
 
       if (!name) {
